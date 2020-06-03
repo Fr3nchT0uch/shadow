@@ -13,7 +13,7 @@
     *= $50 ; ORG = $50
 
 ; =============================================================================
-BASE_Y = 8
+BASE_Y = 7
 ; =============================================================================
 offsetGR		= $26	; +27
 
@@ -26,11 +26,13 @@ START
 		; init screens
 		JSR $F3E2			; HGR/Erase screen [ROM]
 		JSR $FB40			; LORES/Erase Screen [ROM]
+		
+		; [c = 1 here]
 
 		; display SHADOW text
 .loopY		
 .modY		LDA #06			
-		ADC #BASE_Y		; c = 0 here (because of CPY #$FF = "true")
+		ADC #BASE_Y		; [c = 1 always because of the CMP #$FF]
 		JSR $F847			; get "offsetGR" (in $26/27) from Y value (in A) [ROM]
 
 		LDA #$55			; color
