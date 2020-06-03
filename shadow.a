@@ -28,7 +28,8 @@ START
 		JSR $FB40			; LORES/Erase Screen [ROM]
 
 		; display SHADOW text
-.loopY		LDA #06			
+.loopY		
+.modY		LDA #06			
 		ADC #BASE_Y		; c = 0 here (because of CPY #$FF = "true")
 		JSR $F847			; get "offsetGR" (in $26/27) from Y value (in A) [ROM]
 
@@ -36,17 +37,17 @@ START
 		LDY #39
 .loopX		
 		LDX #7
-.moddata
-.loop1byte	LSR+1 DATATEXT+34		; force zp (ACME) 
+.loop1byte
+.moddata		LSR+1 DATATEXT+34		; force zp (ACME) 
 		BCC +
-.modoffset	STA (offsetGR),Y
+		STA (offsetGR),Y
 + 		DEY
 		DEX
 		BPL .loop1byte
 		DEC .moddata+1
 		CPY #$FF			
 		BNE .loopX
-.modindex		DEC .loopY+1
+		DEC .modY+1
 		BPL .loopY
 		
 		; desynch screen
@@ -78,6 +79,7 @@ mainloop
 		
 		JMP mainloop
 ; =============================================================================
+;                            SSSSS   HHHHH AA  AAA DDDD  D OOOOO   WWWWWW
 DATATEXT		!byte %00111110,%11001011,%11101111,%00111110,%11000100	
 		!byte %00111110,%11001011,%11101111,%10111110,%11000100
 		!byte %00110000,%11001011,%00101100,%10110010,%11000100
