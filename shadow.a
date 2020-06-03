@@ -1,0 +1,89 @@
+; ACME 0.96.4
+;
+; [FRENCH TOUCH]
+;
+;
+; v0.02 - OPT 1 (119 bytes)
+; v0.01 - First version (121 bytes)
+;
+!cpu 6502
+!sl "lbl_shadow.txt"
+
+
+    *= $50 ; ORG = $50
+
+; =============================================================================
+BASE_Y = 8
+; =============================================================================
+offsetGR		= $26	; +27
+
+src		= $30	; +31
+val1		= $32
+val2		= $33
+; =============================================================================
+START
+!zone
+		; init screens
+		JSR $F3E2			; HGR/Erase screen [ROM]
+		JSR $FB40			; LORES/Erase Screen [ROM]
+
+		; display SHADOW text
+.loopY		LDA #06			
+		ADC #BASE_Y		; c = 0 here (because of CPY #$FF = "true")
+		JSR $F847			; get "offsetGR" (in $26/27) from Y value (in A) [ROM]
+
+		LDA #$55			; color
+		LDY #39
+.loopX		
+		LDX #7
+.moddata
+.loop1byte	LSR+1 DATATEXT+34		; force zp (ACME) 
+		BCC +
+.modoffset	STA (offsetGR),Y
++ 		DEY
+		DEX
+		BPL .loop1byte
+		DEC .moddata+1
+		CPY #$FF			
+		BNE .loopX
+.modindex		DEC .loopY+1
+		BPL .loopY
+		
+		; desynch screen
+		LDA #$C0
+		STA src+1
+		LDA #$56
+		STA src
+		LDA #00
+		STA val1
+
+mainloop		
+		LDY #00
+-		LDA $C019
+		BPL -
+.count		LDA #192
+--		LDX val1
+-		
+		LDA (src),Y
+		TYA
+		EOR #01
+		TAY
+		DEX
+		BNE -
+		DEC .count+1
+		BNE --
+		LDA #192
+		STA .count+1
+		DEC val1
+		
+		JMP mainloop
+; =============================================================================
+DATATEXT		!byte %00111110,%11001011,%11101111,%00111110,%11000100	
+		!byte %00111110,%11001011,%11101111,%10111110,%11000100
+		!byte %00110000,%11001011,%00101100,%10110010,%11000100
+		!byte %00111110,%11111011,%11101100,%10110010,%11010100
+		!byte %00001110,%11111011,%11101100,%10110010,%11111100
+		!byte %00111110,%11001011,%00101111,%10111110,%11101100
+		!byte %00111110,%11001011,%00101111,%00111110,%11000100
+; =============================================================================
+FinalSIZE = * - START
