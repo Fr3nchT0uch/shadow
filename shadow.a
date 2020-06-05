@@ -3,7 +3,11 @@
 ; [FRENCH TOUCH]
 ;
 ;
-; v0.01 - First usable version
+; v0.02 	- reverse order
+; v0.011	- end added
+; v0.01 	- First usable version
+;
+; TODO	- remove useless labels for final version
 ;
 !cpu 6502
 !sl "lbl_shadow.txt"
@@ -48,24 +52,22 @@ START
 		BPL .loopY
 		
 		; desynch screen
-		; c = 1 here
+		; Y = $FF / c = 1 here
 mainloop
 
 .modvar1		LDX #255
 .loop1		
 		STA $C056
 .modvar2		BVC +		; BVC xx
-+		NOP		; 0
+		NOP		; 0
 		NOP		; 1
 		NOP		; 2
 		NOP		; -
-		NOP		; 4
++		NOP		; 4
 		STA $C057
-.modvar3		BVC +		; 8
+.modvar3		BVC +		
++		STA $C030
 		NOP
-		NOP
-+		NOP
-		STA $C030
 
 		DEX
 		NOP : NOP		; comment here to test
@@ -73,12 +75,13 @@ mainloop
 		DEY
 		BNE mainloop
 		LDA .modvar2+1
-		ROL
-		AND #15
+		BEQ +
+		LSR		
 		STA .modvar2+1
 		JMP mainloop
-		
-		
+
++		STA $C056
+.end		JMP .end 		
 ; =============================================================================
 ;                            SSSSS   HHHHH AA  AAA DDDD  D OOOOO   WWWWWW
 DATATEXT		!byte %00111110,%11001011,%11101111,%00111110,%11000100	
@@ -89,4 +92,4 @@ DATATEXT		!byte %00111110,%11001011,%11101111,%00111110,%11000100
 		!byte %00111110,%11001011,%00101111,%10111110,%11101100
 		!byte %00111110,%11001011,%00101111,%00111110,%11000100
 ; =============================================================================
-FinalSIZE = * - START
+FinalSiZE = * - START
