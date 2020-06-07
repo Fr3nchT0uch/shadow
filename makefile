@@ -21,7 +21,7 @@ $(DISKNAME): shadow.b
 #	REMOVE OLD FILE (mandatory)
 	$(AC) -d $(DISKNAME) SHADOW
 # 	COPY TO DSK
-	$(AC) -p $(DISKNAME) SHADOW B $50 <shadow.b
+	$(AC) -p $(DISKNAME) SHADOW B $60 <shadow.b
 
 # 	EMULATOR
 	copy lbl_shadow.txt $(APPLEWINPATH)\A2_USER1.SYM

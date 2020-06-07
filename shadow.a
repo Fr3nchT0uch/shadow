@@ -1,22 +1,18 @@
 ; ACME 0.96.4
 ;
-; [FRENCH TOUCH]
+; GROUiK / [FRENCH TOUCH]
+; 06/2020
 ;
-;
-; v0.02 	- reverse order
-; v0.011	- end added
-; v0.01 	- First usable version
-;
-; TODO	- remove useless labels for final version
+; v0.2
 ;
 !cpu 6502
 !sl "lbl_shadow.txt"
 
 
-    *= $50 ; ORG = $50
+    *= $60 	; ORG = $60
 
 ; =============================================================================
-BASE_Y = 7
+BASE_Y = 7	; + 1 (carry)
 ; =============================================================================
 offsetGR		= $26	; +27
 ; =============================================================================
@@ -28,60 +24,67 @@ START
 		
 		; [c = 1 here]
 
-		; display SHADOW text
-.loopY		
-.modY		LDA #06			
+		; display "SHADOW" text
+loopY		
+modY		LDA #06			
 		ADC #BASE_Y		; [c = 1 always because of the CMP #$FF below]
-		JSR $F847			; get "offsetGR" (in $26/27) from Y value (in A) [ROM]
+		JSR $F847			; set "offsetGR" (in $26/27) from Y value (in A) [ROM]
 
 		LDA #$55			; gray color
 		LDY #39
-.loopX		
+loopX		
 		LDX #7
-.loop1byte
-.moddata		LSR+1 DATATEXT+34		; force zp (ACME) 
+loop1byte
+moddata		LSR+1 DATATEXT+34		; force zp (ACME) 
 		BCC +
 		STA (offsetGR),Y
 + 		DEY
 		DEX
-		BPL .loop1byte
-		DEC .moddata+1
+		BPL loop1byte
+		DEC moddata+1
 		CPY #$FF			
-		BNE .loopX
-		DEC .modY+1
-		BPL .loopY
+		BNE loopX
+		DEC modY+1
+		BPL loopY
 		
 		; desynch screen
 		; Y = $FF / c = 1 here
 mainloop
-
-.modvar1		LDX #255
-.loop1		
+		LDX #255
+loop1		
 		STA $C056
-.modvar2		BVC +		; BVC xx
+modvar1		BVC +		; BVC xx
 		NOP		; 0
 		NOP		; 1
 		NOP		; 2
-		NOP		; -
-+		NOP		; 4
-		STA $C057
-.modvar3		BVC +		
-+		STA $C030
-		NOP
-
++		NOP		; 3
+		ASL $C057
+		BVC +		
++		LDA ($AC,X)	
+		STA $C030
 		DEX
-		NOP : NOP		; comment here to test
-		BNE .loop1
+		BNE loop1
 		DEY
 		BNE mainloop
-		LDA .modvar2+1
-		BEQ +
-		LSR		
-		STA .modvar2+1
-		JMP mainloop
+		DEC modvar1+1
+		BPL mainloop
 
-+		STA $C056
-.end		JMP .end 		
+		; end part
+		; Y = 0
+		LDX #80	
+loope	
+-		LDA $C019
+		BPL -
+		LDA $C056,Y
+		LDA #68
+		JSR $FCA8			; WAIT routine [ROM] => (26+27*68+5*68^2)/2 cycles
+		TYA
+		EOR #01
+		TAY
+		DEX
+		BNE loope
+
+		RTS			; return to BASIC (actually fucked! but who cares ?!)
 ; =============================================================================
 ;                            SSSSS   HHHHH AA  AAA DDDD  D OOOOO   WWWWWW
 DATATEXT		!byte %00111110,%11001011,%11101111,%00111110,%11000100	
@@ -92,4 +95,5 @@ DATATEXT		!byte %00111110,%11001011,%11101111,%00111110,%11000100
 		!byte %00111110,%11001011,%00101111,%10111110,%11101100
 		!byte %00111110,%11001011,%00101111,%00111110,%11000100
 ; =============================================================================
-FinalSiZE = * - START
+SiZE = * - START
+!if (SiZE >$80) {!warn "Too large guy, try again!"} else {!warn SiZE}
