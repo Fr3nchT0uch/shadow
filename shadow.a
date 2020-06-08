@@ -3,7 +3,7 @@
 ; GROUiK / [FRENCH TOUCH]
 ; 06/2020
 ;
-; v0.3
+; v0.4
 ;
 !cpu 6502
 !sl "lbl_shadow.txt"
@@ -31,24 +31,25 @@ modY		LDA #06
 		JSR $F847			; set "offsetGR" (in $26/27) from Y value (in A) [ROM]
 
 		LDA #$55			; gray color
-		LDY #39
+		LDY #35			; x pos
 loopX		
 		LDX #7
 loop1byte
-moddata		LSR+1 DATATEXT+34		; force zp (ACME) 
+moddata		LSR+1 DATATEXT+27		; force zp (ACME) 
 		BCC +
 		STA (offsetGR),Y
 + 		DEY
 		DEX
 		BPL loop1byte
 		DEC moddata+1
-		CPY #$FF			
+		CPY #03			
 		BNE loopX
 		DEC modY+1
 		BPL loopY
 		
 		; desynch screen
-		; Y = $FF / c = 1 here
+		; c = 1 here
+		LDY #00
 mainloop
 		LDX #255
 loop1		
@@ -82,19 +83,20 @@ loope
 		TYA
 		EOR #01
 		TAY
+		STA $C030
 		DEX
 		BNE loope
 
-		RTS			; return to BASIC (actually fucked! but who cares ?!)
+end		BEQ end
 ; =============================================================================
-;                               SSS  S HHHH A  AAA DDDD   OOOO WW  WWW    
-DATATEXT		!byte %00000111,%10100101,%11100001,%01111010,%00100000	
-		!byte %00000100,%10100101,%00100001,%01001010,%00100000
-		!byte %00000100,%00100101,%00100001,%01001010,%00100000
-		!byte %00000111,%10111101,%11101111,%01001010,%10100000
-		!byte %00000000,%10100101,%00101001,%01001010,%10100000
-		!byte %00000100,%10100101,%00101001,%01001010,%10100000
-		!byte %00000111,%10100101,%00101111,%01111011,%11100000
-; =============================================================================
+;                           SSSS HH  HH AAAA   DDDD OOO  O WWWWW    
+DATATEXT		!byte %01111010,%01011110,%00010111,%10100010	
+		!byte %01001010,%01010010,%00010100,%10100010
+		!byte %01000010,%01010010,%00010100,%10100010
+		!byte %01111011,%11011110,%11110100,%10101010
+		!byte %00001010,%01010010,%10010100,%10101010
+		!byte %01001010,%01010010,%10010100,%10101010
+		!byte %01111010,%01010010,%11110111,%10111110
+; =================================,%========,%========,%============================
 SiZE = * - START
 !if (SiZE >$80) {!warn "Too large guy, try again!"} else {!warn SiZE}
