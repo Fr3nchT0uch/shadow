@@ -1,9 +1,12 @@
 ; ACME 0.96.4
 ;
-; GROUiK / [FRENCH TOUCH]
-; 06/2020
+; SHADOW
+; 128B INTRO for APPLE II
 ;
-; v0.4
+; GROUiK / [FRENCH TOUCH]
+; 08/2020
+;
+; v0.41 - FINAL and RELEASED VERSION
 ;
 !cpu 6502
 !sl "lbl_shadow.txt"
@@ -87,7 +90,7 @@ loope
 		DEX
 		BNE loope
 
-end		BEQ end
+end		JMP $9D84			; re-enter to DOS 3.3 (ColdStart routine)
 ; =============================================================================
 ;                           SSSS HH  HH AAAA   DDDD OOO  O WWWWW    
 DATATEXT		!byte %01111010,%01011110,%00010111,%10100010	
