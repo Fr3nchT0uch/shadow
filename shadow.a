@@ -6,7 +6,7 @@
 ; GROUiK / [FRENCH TOUCH]
 ; 08/2020
 ;
-; v0.41 - FINAL and RELEASED VERSION
+; v0.41 - FINAL and RELEASED VERSION at the Apple II Festival France
 ;
 !cpu 6502
 !sl "lbl_shadow.txt"
